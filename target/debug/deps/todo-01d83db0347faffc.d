@@ -1,0 +1,5 @@
+/home/ali/Documents/projects/rust_tutorial_code_examples/target/debug/deps/todo-01d83db0347faffc.rmeta: todo/src/main.rs
+
+/home/ali/Documents/projects/rust_tutorial_code_examples/target/debug/deps/todo-01d83db0347faffc.d: todo/src/main.rs
+
+todo/src/main.rs:
