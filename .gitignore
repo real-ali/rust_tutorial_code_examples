@@ -1,0 +1,16 @@
+# Rust
+target/
+Cargo.lock
+
+# IDE files
+.idea/
+.vscode/
+
+# Generated files
+*.rs.bk
+
+# Build artifacts
+**/target/
+
+# Rust Language Server
+.rustc_info.json
