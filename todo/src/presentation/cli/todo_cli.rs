@@ -6,24 +6,31 @@ use crate::{
     application::{
         CreateTodo, CreateTodoRequest, DeleteTodo, DeleteTodoRequest, IdGeneratore,
         MarkAsCompletedRequest, MarkAsCompletedTodo, ModifyTodo, ModifyTodoRequest, ReadTodes,
-        TodoUsecase,
+        TodoRepository, TodoUsecase,
     },
     infrastructure::TodoRepoInFile,
 };
 
+
 pub struct TodoCli {
     id_gen: Box<dyn IdGeneratore>,
+    repo: Box<dyn TodoRepository>,
 }
 
 impl TodoCli {
-    pub fn new(id_gen: Box<dyn IdGeneratore>) -> Self {
-        Self { id_gen }
+    pub fn new(id_gen: Box<dyn IdGeneratore>, repo: Box<dyn TodoRepository>) -> Self {
+        Self { id_gen, repo }
     }
+}
+
+impl TodoCli {
     pub fn run(self) {
         let matches = Self::todo().arg_required_else_help(true).get_matches();
-        let repo = Box::new(TodoRepoInFile::new("data.json"));
-        let mut create_usecase = CreateTodo::new(repo, self.id_gen);
+
+       
+
         if let Some(create_matches) = matches.subcommand_matches("create") {
+            let mut create_usecase = CreateTodo::new(self.repo, self.id_gen);
             let title = create_matches.get_one::<String>("title");
             let description = create_matches.get_one::<String>("description").unwrap();
             match title {
@@ -58,9 +65,9 @@ impl TodoCli {
             }
         }
 
-        let repo = Box::new(TodoRepoInFile::new("data.json"));
-        let mut modify_usecase = ModifyTodo::new(repo);
-        if let Some(modify_matches) = matches.subcommand_matches("modify") {
+        
+       else if let Some(modify_matches) = matches.subcommand_matches("modify") {
+            let mut modify_usecase = ModifyTodo::new(self.repo);
             let id = modify_matches.get_one::<String>("id").unwrap();
             let modify_title = modify_matches.get_one::<String>("title");
             let modify_description = modify_matches.get_one::<String>("description").unwrap();
@@ -98,9 +105,10 @@ impl TodoCli {
                 }
             }
         }
-        let repo = Box::new(TodoRepoInFile::new("data.json"));
-        let mut delete_usecase = DeleteTodo::new(repo);
-        if let Some(delete_matches) = matches.subcommand_matches("delete") {
+      
+      
+        else if let Some(delete_matches) = matches.subcommand_matches("delete") {
+            let mut delete_usecase = DeleteTodo::new(self.repo);
             let all = delete_matches.get_flag("all");
             match delete_matches.get_one::<String>("id") {
                 Some(id) => {
@@ -117,9 +125,10 @@ impl TodoCli {
                 }
             };
         }
-        let repo = Box::new(TodoRepoInFile::new("data.json"));
-        let mut read_usecase = ReadTodes::new(repo);
-        if let Some(read_matches) = matches.subcommand_matches("read") {
+       
+       
+        else if let Some(read_matches) = matches.subcommand_matches("read") {
+            let mut read_usecase = ReadTodes::new(self.repo);
             let id = read_matches.get_one::<String>("id");
 
             let todos = read_usecase.execute(id.cloned());
