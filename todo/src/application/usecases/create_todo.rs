@@ -1,6 +1,7 @@
-
-
-use crate::{application::{TodoRepository, IdGeneratore, CreateTodoRequest}, domain::Todo};
+use crate::{
+    application::{CreateTodoRequest, IdGeneratore, TodoRepository},
+    domain::Todo,
+};
 
 use super::TodoUsecase;
 
@@ -23,8 +24,8 @@ impl TodoUsecase<CreateTodoRequest, String> for CreateTodo {
             .set_title(request.title)
             .set_description(request.description)
             .set_is_completed(false);
-        
-        self.repo.create_todo( new_todo);
+
+        self.repo.create_todo(new_todo);
         id
     }
 }

@@ -1,5 +1,7 @@
+
+
 use serde::{Deserialize, Serialize};
-#[derive(Debug,Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Todo {
     pub id: Option<String>,
     pub title: Option<String>,
@@ -36,5 +38,3 @@ impl Todo {
         self
     }
 }
-
-

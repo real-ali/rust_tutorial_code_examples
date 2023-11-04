@@ -1,12 +1,9 @@
 use std::{
     fs::{self, File, OpenOptions},
-    io::{ Read, Write},
+    io::{Read, Write},
 };
 
-use crate::{
-    application::TodoRepository,
-    domain::Todo,
-};
+use crate::{application::TodoRepository, domain::Todo};
 
 pub struct TodoRepoInFile {
     path: String,
@@ -22,18 +19,30 @@ impl TodoRepoInFile {
         }
     }
 }
+impl TodoRepoInFile {
+    pub fn remove(self) -> String {
+        std::fs::remove_file(self.path).unwrap();
+        String::from("Successfully Deleted")
+    }
+}
 
 impl TodoRepository for TodoRepoInFile {
     fn read_todoes(&mut self) -> Vec<Todo> {
         let mut file = File::open(&self.path).unwrap();
         let mut content = String::new();
         file.read_to_string(&mut content).unwrap();
-        let todos: Vec<Todo> = serde_json::from_str(&content).unwrap();
-        todos
+        let todos: Result<Vec<Todo>, serde_json::Error> = serde_json::from_str(&content);
+        match todos {
+            Ok(todos) =>  todos,
+            Err(_) => vec![],
+        }
+       
     }
     fn create_todo(&mut self, todo: Todo) {
         let todoes: &mut Vec<Todo> = &mut Vec::<Todo>::new();
+
         todoes.append(&mut self.read_todoes());
+
         todoes.append(&mut vec![todo]);
 
         let todos_json = serde_json::to_string_pretty(todoes).unwrap();
@@ -49,7 +58,8 @@ impl TodoRepository for TodoRepoInFile {
     fn delete_todo(&mut self, id: &str) {
         let todoes: &mut Vec<Todo> = &mut Vec::<Todo>::new();
         todoes.append(&mut self.read_todoes());
-        todoes.retain(|t| t.id == Some(id.to_string()));
+
+        todoes.retain(|t| t.id != Some(id.to_string()));
         let todos_json = serde_json::to_string_pretty(todoes).unwrap();
         let mut file = OpenOptions::new()
             .write(true)
@@ -87,7 +97,6 @@ impl TodoRepository for TodoRepoInFile {
             .find(|todo| todo.id == Some(id.to_string()))
         {
             data.is_completed = is_completed
-           
         }
         let todos_json = serde_json::to_string_pretty(todoes).unwrap();
         let mut file = OpenOptions::new()
